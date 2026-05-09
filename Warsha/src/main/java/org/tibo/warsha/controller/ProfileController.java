@@ -1,7 +1,7 @@
-package com.example.warsha.controller;
+package org.tibo.warsha.controller;
 
-import com.example.warsha.model.User;
-import com.example.warsha.service.UserService;
+import org.tibo.warsha.model.User;
+import org.tibo.warsha.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile – Warsha</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #f0f4f8;
+      font-family: 'IBM Plex Sans', sans-serif;
+      min-height: 100vh;
+      padding: 0 0 3rem;
+      color: #1a2332;
+    }
+
+    /* ── Top nav ── */
+    nav {
+      background: #1a56a4;
+      padding: .85rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: 1.15rem; font-weight: 600; color: #fff; text-decoration: none;
+    }
+    .nav-logo svg { width: 20px; height: 20px; fill: #fff; }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-user { font-size: .85rem; color: rgba(255,255,255,.75); }
+    .nav-user strong { color: #fff; }
+    .worker-badge {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      color: #fff;
+      font-size: .72rem; font-weight: 600;
+      padding: .15rem .55rem;
+      border-radius: 3px;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .nav-logout {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.4);
+      color: #fff;
+      border-radius: 3px;
+      padding: .3rem .75rem;
+      font-family: inherit; font-size: .82rem;
+      cursor: pointer;
+    }
+    .nav-logout:hover { background: rgba(255,255,255,.12); }
+
+    /* ── Container ── */
+    .container { max-width: 680px; margin: 2rem auto; padding: 0 1rem; }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border: 1px solid #d0dbe8;
+      border-radius: 4px;
+      margin-bottom: 1.2rem;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: #f7f9fb;
+      border-bottom: 1px solid #d0dbe8;
+      padding: .85rem 1.4rem;
+      display: flex; align-items: center; gap: .7rem;
+    }
+    .card-header-icon {
+      width: 32px; height: 32px;
+      background: #dbeafe; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .card-header-icon svg { width: 17px; height: 17px; fill: #1a56a4; }
+    .card-header h2 { font-size: .95rem; font-weight: 600; color: #1a2332; }
+    .card-body { padding: 1.4rem; }
+
+    /* ── Profile summary ── */
+    .profile-row { display: flex; align-items: center; gap: 1.2rem; }
+    .avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #1a56a4;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; font-weight: 600; color: #fff;
+      text-transform: uppercase; flex-shrink: 0;
+    }
+    .avatar.worker { background: #0f3868; }
+    .profile-info h3 { font-size: 1rem; font-weight: 600; }
+    .profile-info p  { font-size: .85rem; color: #5a6a7a; margin-top: .15rem; }
+    .role-tag {
+      display: inline-block;
+      margin-top: .35rem;
+      font-size: .72rem; font-weight: 600;
+      padding: .15rem .55rem;
+      border-radius: 3px;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .role-tag.worker { background: #dbeafe; color: #1a56a4; }
+    .role-tag.user   { background: #f0f4f8; color: #5a6a7a; }
+
+    /* ── Info grid ── */
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+      background: #d0dbe8; border-top: 1px solid #d0dbe8;
+    }
+    .info-cell { background: #fff; padding: .85rem 1.4rem; }
+    .info-cell .lbl { font-size: .75rem; color: #7a8a9a; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .2rem; }
+    .info-cell .val { font-size: .9rem; color: #1a2332; }
+    .full-width { grid-column: 1 / -1; }
+
+    /* ── Alerts ── */
+    .alert { border-radius: 3px; padding: .65rem .9rem; font-size: .85rem; margin-bottom: 1.2rem; }
+    .alert-error   { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; }
+    .alert-success { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+
+    /* ── Form ── */
+    .section-label {
+      font-size: .72rem; font-weight: 600; color: #1a56a4;
+      text-transform: uppercase; letter-spacing: .07em;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid #dbeafe;
+      margin-bottom: 1rem;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: .8rem; font-weight: 500; color: #3a4a5a; margin-bottom: .35rem; }
+    input, textarea, select {
+      width: 100%; border: 1px solid #c0cdd8; border-radius: 3px;
+      background: #fff; color: #1a2332; font-family: inherit;
+      font-size: .9rem; padding: .6rem .85rem; outline: none; transition: border-color .15s;
+      appearance: none;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6a7a' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right .75rem center;
+      padding-right: 2.2rem;
+    }
+    textarea { resize: vertical; min-height: 76px; }
+    input:focus, textarea:focus, select:focus { border-color: #1a56a4; box-shadow: 0 0 0 3px rgba(26,86,164,.1); }
+    input::placeholder, textarea::placeholder { color: #a0adb8; }
+
+    .phone-wrap { display: flex; }
+    .phone-prefix {
+      background: #f0f4f8; border: 1px solid #c0cdd8; border-right: none;
+      border-radius: 3px 0 0 3px; padding: .6rem .75rem;
+      font-size: .9rem; color: #5a6a7a; white-space: nowrap;
+      display: flex; align-items: center;
+    }
+    .phone-wrap input { border-radius: 0 3px 3px 0; flex: 1; }
+
+    .divider { border: none; border-top: 1px solid #e8eef4; margin: 1.2rem 0; }
+    .hint { font-size: .8rem; color: #7a8a9a; margin-bottom: 1rem; }
+
+    .btn {
+      padding: .65rem 1.8rem;
+      background: #1a56a4; color: #fff; border: none; border-radius: 3px;
+      font-family: inherit; font-size: .9rem; font-weight: 600;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn:hover  { background: #154888; }
+    .btn:active { background: #0f3868; }
+
+    @media (max-width: 500px) {
+      .form-row  { grid-template-columns: 1fr; }
+      .info-grid { grid-template-columns: 1fr; }
+      .nav-user  { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h8l-1 8 11-12h-8z"/></svg>
+    Warsha
+  </a>
+  <div class="nav-right">
+    <span class="nav-user">
+      Signed in as <strong th:text="${user.username}">user</strong>
+    </span>
+    <span class="worker-badge" th:if="${user.role.name() == 'WORKER'}">Worker</span>
+    <form th:action="@{/logout}" method="post" style="display:inline;">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <button type="submit" class="nav-logout">Logout</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ── Profile summary card ── -->
+  <div class="card">
+    <div class="card-body">
+      <div class="profile-row">
+        <div class="avatar"
+             th:classappend="${user.role.name() == 'WORKER'} ? 'worker'"
+             th:text="${user.username != null ? user.username.substring(0,1) : '?'}">U</div>
+        <div class="profile-info">
+          <h3 th:text="${user.fullName != null && !#strings.isEmpty(user.fullName)} ? ${user.fullName} : ${user.username}">Name</h3>
+          <p th:text="${user.email}">email@example.com</p>
+          <span class="role-tag worker" th:if="${user.role.name() == 'WORKER'}">Worker</span>
+          <span class="role-tag user"   th:if="${user.role.name() == 'USER'}">Customer</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Common info cells -->
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="lbl">Username</div>
+        <div class="val" th:text="${user.username}">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="lbl">Account ID</div>
+        <div class="val" th:text="'#' + ${user.id}">—</div>
+      </div>
+
+      <!-- Worker-only cells -->
+      <div class="info-cell" th:if="${user.role.name() == 'WORKER'}">
+        <div class="lbl">Trade</div>
+        <div class="val" th:text="${user.trade != null} ? ${user.trade} : '—'">—</div>
+      </div>
+      <div class="info-cell" th:if="${user.role.name() == 'WORKER'}">
+        <div class="lbl">Service area</div>
+        <div class="val" th:text="${user.serviceArea != null} ? ${user.serviceArea} : '—'">—</div>
+      </div>
+      <div class="info-cell" th:if="${user.role.name() == 'WORKER'}">
+        <div class="lbl">Experience</div>
+        <div class="val" th:text="${user.yearsExperience != null} ? ${user.yearsExperience} + ' yrs' : '—'">—</div>
+      </div>
+      <div class="info-cell" th:if="${user.role.name() == 'WORKER'}">
+        <div class="lbl">Phone</div>
+        <div class="val" th:text="${user.phone != null} ? ${user.phone} : '—'">—</div>
+      </div>
+
+      <div class="info-cell full-width">
+        <div class="lbl">Bio</div>
+        <div class="val" th:text="${user.bio != null && !#strings.isEmpty(user.bio)} ? ${user.bio} : 'No bio added yet.'">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Edit form card ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                fill="none" stroke="#1a56a4" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h2>Edit profile</h2>
+    </div>
+    <div class="card-body">
+
+      <div class="alert alert-error"   th:if="${error}"   th:text="${error}"></div>
+      <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+      <form th:action="@{/profile/update}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <!-- ── Personal details (all users) ── -->
+        <div class="section-label">Personal details</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fullName">Full name</label>
+            <input id="fullName" type="text" name="fullName"
+                   th:value="${user.fullName}" placeholder="Your full name"/>
+          </div>
+          <div class="form-group">
+            <label for="email">Email address</label>
+            <input id="email" type="email" name="email"
+                   th:value="${user.email}" placeholder="you@example.com" required/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bio">Bio</label>
+          <textarea id="bio" name="bio"
+                    placeholder="A short description about yourself…"
+                    th:text="${user.bio}"></textarea>
+        </div>
+
+        <!-- ── Trade details (workers only) ── -->
+        <div th:if="${user.role.name() == 'WORKER'}">
+          <hr class="divider"/>
+          <div class="section-label">Trade details</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="trade">Trade / job type</label>
+              <select id="trade" name="trade">
+                <option value="" disabled>Select your trade</option>
+                <option th:each="t : ${ {'Plumber','Electrician','Carpenter','Painter','AC Technician','Welder','Mechanic','Mason','Tiler','General Handyman','Other'} }"
+                        th:value="${t}" th:text="${t}"
+                        th:selected="${t == user.trade}">
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="yearsExperience">Years of experience</label>
+              <select id="yearsExperience" name="yearsExperience">
+                <option value="">Select range</option>
+                <option value="1"  th:selected="${user.yearsExperience == 1}">Less than 1 year</option>
+                <option value="2"  th:selected="${user.yearsExperience == 2}">1 – 2 years</option>
+                <option value="5"  th:selected="${user.yearsExperience == 5}">3 – 5 years</option>
+                <option value="10" th:selected="${user.yearsExperience == 10}">6 – 10 years</option>
+                <option value="15" th:selected="${user.yearsExperience == 15}">More than 10 years</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="serviceArea">Service area / city</label>
+            <input id="serviceArea" type="text" name="serviceArea"
+                   th:value="${user.serviceArea}" placeholder="e.g. Cairo, Giza, Alexandria"/>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone number</label>
+            <div class="phone-wrap">
+              <span class="phone-prefix">+20</span>
+              <input id="phone" type="tel" name="phone"
+                     th:value="${user.phone}" placeholder="1012345678" autocomplete="tel"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Change password (all users) ── -->
+        <hr class="divider"/>
+        <p class="hint">Leave the password fields blank to keep your current password.</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="newPassword">New password</label>
+            <input id="newPassword" type="password" name="newPassword"
+                   placeholder="Minimum 6 characters" autocomplete="new-password"/>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirm new password</label>
+            <input id="confirmPassword" type="password" name="confirmPassword"
+                   placeholder="Repeat new password" autocomplete="new-password"/>
+          </div>
+        </div>
+
+        <button class="btn" type="submit">Save changes</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

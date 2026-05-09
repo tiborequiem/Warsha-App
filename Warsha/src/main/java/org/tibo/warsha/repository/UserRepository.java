@@ -1,20 +1,27 @@
 package org.tibo.warsha.repository;
 
-import org.springframework.stereotype.Repository;
 import org.tibo.warsha.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface UserRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    List<User> findAll();
+    Optional<User> findByUsername(String username);
 
-    Optional<User> findById(Long id);
+    Optional<User> findByEmail(String email);
 
-    User save(User user);
+    List<User> findByRole(User.Role role);
 
-    void deleteById(Long id);
+    List<User> findByRoleAndTradeContainingIgnoreCase(User.Role role, String trade);
+
+    List<User> findByRoleAndServiceAreaContainingIgnoreCase(User.Role role, String serviceArea);
+
+    List<User> findByRoleAndTradeContainingIgnoreCaseAndServiceAreaContainingIgnoreCase(
+            User.Role role, String trade, String serviceArea);
 
     boolean existsByUsername(String username);
 

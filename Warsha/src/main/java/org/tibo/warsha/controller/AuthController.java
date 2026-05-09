@@ -1,6 +1,6 @@
-package com.example.warsha.controller;
+package org.tibo.warsha.controller;
 
-import com.example.warsha.service.UserService;
+import org.tibo.warsha.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
