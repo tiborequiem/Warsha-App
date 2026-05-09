@@ -15,7 +15,7 @@ public class Appointment {
     public Appointment() {}
 
     public enum Status {
-        PENDING, CONFIRMED, COMPLETED, CANCELLED, ACCEPTED, REJECTED
+        PENDING, CONFIRMED, COMPLETED, CANCELLED
     }
 
     @Id
@@ -42,9 +42,6 @@ public class Appointment {
 
     @Column(length = 500)
     private String notes;
-
-    @Column(precision = 10, scale = 2)
-    private double price;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
