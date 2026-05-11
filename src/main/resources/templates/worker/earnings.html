@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Earnings – Warsha</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f0f4f8; font-family: 'IBM Plex Sans', sans-serif; min-height: 100vh; }
+    nav {
+      background: #1a56a4; padding: .9rem 2rem; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: .5rem; color: #fff; font-size: 1.2rem; font-weight: 600; text-decoration: none; }
+    .logo-box { width: 28px; height: 28px; background: rgba(255,255,255,.2); border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+    .logo-box svg { width: 16px; height: 16px; fill: #fff; }
+    nav a { color: rgba(255,255,255,.85); text-decoration: none; font-size: .9rem; margin-left: 1.2rem; }
+    nav a:hover { color: #fff; }
+    .container { max-width: 800px; margin: 2rem auto; padding: 0 1.5rem; }
+    h1 { font-size: 1.4rem; font-weight: 600; color: #1a2332; margin-bottom: 1.2rem; }
+    .summary {
+      background: #fff; border: 1px solid #d0dbe8; border-radius: 4px;
+      padding: 1.4rem 1.6rem; margin-bottom: 1.5rem;
+      display: flex; gap: 2rem; flex-wrap: wrap;
+    }
+    .sum-item { }
+    .sum-label { font-size: .75rem; font-weight: 500; color: #5a6a7a; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .3rem; }
+    .sum-value { font-size: 1.6rem; font-weight: 600; color: #1a2332; }
+    .sum-value.money { color: #15803d; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #d0dbe8; border-radius: 4px; overflow: hidden; }
+    thead { background: #f8fafc; }
+    th { padding: .75rem 1rem; text-align: left; font-size: .8rem; font-weight: 500; color: #5a6a7a; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid #d0dbe8; }
+    td { padding: .85rem 1rem; font-size: .88rem; color: #1a2332; border-bottom: 1px solid #eef2f7; }
+    tr:last-child td { border-bottom: none; }
+    .amount { font-weight: 600; color: #15803d; }
+    .empty { text-align: center; padding: 2.5rem; color: #5a6a7a; font-size: .9rem; }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" th:href="@{/}">
+    <div class="logo-box"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h8l-1 8 11-12h-8z"/></svg></div>
+    Warsha
+  </a>
+  <div>
+    <a th:href="@{/worker/dashboard}">Dashboard</a>
+    <a th:href="@{/worker/earnings}">Earnings</a>
+    <a th:href="@{/profile}">Profile</a>
+    <a th:href="@{/logout}">Sign out</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Earnings History</h1>
+
+  <div class="summary">
+    <div class="sum-item">
+      <div class="sum-label">Total Earnings</div>
+      <div class="sum-value money" th:text="'$' + ${#numbers.formatDecimal(totalEarnings, 1, 2)}">$0.00</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Completed Jobs</div>
+      <div class="sum-value" th:text="${completedCount}">0</div>
+    </div>
+  </div>
+
+  <table th:if="${not #lists.isEmpty(completedAppointments)}">
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Customer</th>
+        <th>Date</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="appt : ${completedAppointments}">
+        <td th:text="${appt.serviceType}"></td>
+        <td th:text="${appt.customer.fullName ?: appt.customer.username}"></td>
+        <td th:text="${#temporals.format(appt.appointmentDate, 'MMM d, yyyy')}"></td>
+        <td class="amount" th:text="${worker.basePrice != null} ? ('$' + ${#numbers.formatDecimal(worker.basePrice, 1, 2)}) : '—'"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="empty" th:if="${#lists.isEmpty(completedAppointments)}">
+    No completed appointments yet.
+  </div>
+</div>
+</body>
+</html>
