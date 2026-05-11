@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;  // ← ADDED: for price parameter
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class AppointmentController {
         this.userService = userService;
     }
 
-    // ── Customer Dashboard ────────────────────────────────────────────────────
+    // ── customer dashboard (unchanged) ──
 
     @GetMapping
     public String customerDashboard(@AuthenticationPrincipal UserDetails principal, Model model) {
@@ -39,20 +40,14 @@ public class AppointmentController {
         return "appointments";
     }
 
-    // ── Worker Dashboard (same view, different data) ────────────────────────
+    // ← UPDATED: redirect old worker dashboard to new dedicated controller
 
     @GetMapping("/worker")
-    public String workerDashboard(@AuthenticationPrincipal UserDetails principal, Model model) {
-        User worker = userService.findByUsername(principal.getUsername())
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-        List<Appointment> appointments = appointmentService.findByWorker(worker);
-        model.addAttribute("appointments", appointments);
-        model.addAttribute("user", worker);
-        model.addAttribute("isWorkerView", true);
-        return "appointments";
+    public String workerDashboardRedirect() {
+        return "redirect:/worker/dashboard";  // was: full dashboard logic
     }
 
-    // ── Booking Form ──────────────────────────────────────────────────────────
+    // ── booking form (unchanged) ──
 
     @GetMapping("/book/{workerId}")
     public String showBookingForm(@PathVariable Long workerId,
@@ -66,7 +61,7 @@ public class AppointmentController {
         return "book-appointment";
     }
 
-    // ── Submit Booking ──────────────────────────────────────────────────────
+    // ← UPDATED: added price parameter for earnings calculation
 
     @PostMapping("/book/{workerId}")
     public String submitBooking(@PathVariable Long workerId,
@@ -74,6 +69,7 @@ public class AppointmentController {
                                 @RequestParam String serviceType,
                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime appointmentDate,
                                 @RequestParam(required = false) String notes,
+                                @RequestParam(required = false) BigDecimal price,  // ← ADDED
                                 RedirectAttributes ra) {
         User customer = userService.findByUsername(principal.getUsername())
                 .orElseThrow(() -> new IllegalStateException("User not found"));
@@ -88,7 +84,7 @@ public class AppointmentController {
         }
     }
 
-    // ── Cancel Appointment ──────────────────────────────────────────────────
+    // ── cancel appointment (unchanged) ──
 
     @PostMapping("/{id}/cancel")
     public String cancelAppointment(@PathVariable Long id,
@@ -105,37 +101,6 @@ public class AppointmentController {
         return "redirect:/appointments";
     }
 
-    // ── Worker: Confirm Appointment ─────────────────────────────────────────
-
-    @PostMapping("/{id}/confirm")
-    public String confirmAppointment(@PathVariable Long id,
-                                     @AuthenticationPrincipal UserDetails principal,
-                                     RedirectAttributes ra) {
-        User worker = userService.findByUsername(principal.getUsername())
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-        try {
-            appointmentService.confirmAppointment(id, worker.getId());
-            ra.addFlashAttribute("success", "Appointment confirmed.");
-        } catch (IllegalArgumentException e) {
-            ra.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/appointments/worker";
-    }
-
-    // ── Worker: Complete Appointment ────────────────────────────────────────
-
-    @PostMapping("/{id}/complete")
-    public String completeAppointment(@PathVariable Long id,
-                                      @AuthenticationPrincipal UserDetails principal,
-                                      RedirectAttributes ra) {
-        User worker = userService.findByUsername(principal.getUsername())
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-        try {
-            appointmentService.completeAppointment(id, worker.getId());
-            ra.addFlashAttribute("success", "Appointment marked as completed.");
-        } catch (IllegalArgumentException e) {
-            ra.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/appointments/worker";
-    }
+    // ← REMOVED: confirmAppointment and completeAppointment endpoints
+    // now handled by WorkerDashboardController at /worker/appointments/{id}/...
 }

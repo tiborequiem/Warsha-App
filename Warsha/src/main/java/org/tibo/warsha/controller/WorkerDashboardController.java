@@ -21,32 +21,29 @@ import java.util.List;
 @Controller
 @RequestMapping("/worker")
 @PreAuthorize("hasRole('WORKER')")
-public class WorkerDashboard {
+public class WorkerDashboardController {  // ← was WorkerDashboard (renamed for convention)
+
     private final AppointmentService appointmentService;
     private final UserService userService;
 
-
-    public WorkerDashboard(AppointmentService appointmentService, UserService userService) {
+    public WorkerDashboardController(AppointmentService appointmentService, UserService userService) {
         this.appointmentService = appointmentService;
         this.userService = userService;
     }
+
+    // ← dashboard view
+
     @GetMapping("/dashboard")
     public String workerDashboard(@AuthenticationPrincipal UserDetails principal, Model model) {
-        // Fetch authenticated worker
-        User worker = userService.findByUsername(principal.getUsername())
-                .orElseThrow(() -> new IllegalStateException("Worker not found"));
+        User worker = getAuthenticatedWorker(principal);
 
-        // Dashboard metrics
         long pendingCount = appointmentService.getPendingRequestsCount(worker);
         List<Appointment> todaysAppointments = appointmentService.getTodaysAppointments(worker);
         BigDecimal totalEarnings = worker.getTotalEarnings() != null
                 ? worker.getTotalEarnings()
                 : BigDecimal.ZERO;
-
-        // All appointments for reference (sorted by date)
         List<Appointment> allAppointments = appointmentService.findByWorker(worker);
 
-        // Add to Thymeleaf model
         model.addAttribute("worker", worker);
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("todaysAppointments", todaysAppointments);
@@ -57,6 +54,7 @@ public class WorkerDashboard {
         return "worker/dashboard";
     }
 
+    // ← accept appointment
 
     @PostMapping("/appointments/{id}/accept")
     public String acceptAppointment(@PathVariable Long id,
@@ -65,7 +63,7 @@ public class WorkerDashboard {
         User worker = getAuthenticatedWorker(principal);
 
         try {
-            appointmentService.rejectAppointment(id, worker.getId());
+            appointmentService.acceptAppointment(id, worker.getId());
             ra.addFlashAttribute("success", "Appointment accepted successfully.");
         } catch (IllegalArgumentException e) {
             ra.addFlashAttribute("error", e.getMessage());
@@ -74,6 +72,25 @@ public class WorkerDashboard {
         return "redirect:/worker/dashboard";
     }
 
+    // ← ADDED: reject appointment (was missing in your version)
+
+    @PostMapping("/appointments/{id}/reject")
+    public String rejectAppointment(@PathVariable Long id,
+                                    @AuthenticationPrincipal UserDetails principal,
+                                    RedirectAttributes ra) {
+        User worker = getAuthenticatedWorker(principal);
+
+        try {
+            appointmentService.rejectAppointment(id, worker.getId());
+            ra.addFlashAttribute("success", "Appointment rejected.");
+        } catch (IllegalArgumentException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/worker/dashboard";
+    }
+
+    // ← complete appointment
 
     @PostMapping("/appointments/{id}/complete")
     public String completeAppointment(@PathVariable Long id,
@@ -91,6 +108,7 @@ public class WorkerDashboard {
         return "redirect:/worker/dashboard";
     }
 
+    // ← earnings history
 
     @GetMapping("/earnings")
     public String earningsHistory(@AuthenticationPrincipal UserDetails principal, Model model) {
@@ -109,11 +127,10 @@ public class WorkerDashboard {
         return "worker/earnings";
     }
 
-
+    // ← helper: get authenticated worker from security context
 
     private User getAuthenticatedWorker(UserDetails principal) {
         return userService.findByUsername(principal.getUsername())
                 .orElseThrow(() -> new IllegalStateException("Authenticated worker not found"));
     }
-
 }

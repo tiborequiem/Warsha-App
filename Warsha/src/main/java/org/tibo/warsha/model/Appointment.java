@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;        // ← ADDED: for price field
 import java.time.LocalDateTime;
 
 @Data
@@ -14,8 +15,9 @@ public class Appointment {
 
     public Appointment() {}
 
+    // ← UPDATED: changed CONFIRMED to ACCEPTED, added REJECTED
     public enum Status {
-        PENDING, CONFIRMED, COMPLETED, CANCELLED
+        PENDING, ACCEPTED, REJECTED, COMPLETED, CANCELLED
     }
 
     @Id
@@ -42,6 +44,10 @@ public class Appointment {
 
     @Column(length = 500)
     private String notes;
+
+    // ← ADDED: price for earnings calculation
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

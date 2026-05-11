@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +22,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // ── Registration ──────────────────────────────────────────────────────────
+    // ── registration ──
 
     @Transactional
     public User register(String username, String email, String rawPassword) {
@@ -39,10 +40,14 @@ public class UserService {
         user.setServiceArea(serviceArea);
         user.setYearsExperience(yearsExperience);
         user.setPhone(phone);
+
+        // ← ADDED: initialize earnings to zero for new workers
+        user.setTotalEarnings(BigDecimal.ZERO);
+
         return userRepository.save(user);
     }
 
-    // ── Queries ───────────────────────────────────────────────────────────────
+    // ── queries (unchanged) ──
 
     @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
@@ -75,7 +80,7 @@ public class UserService {
                 Role.WORKER, trade, serviceArea);
     }
 
-    // ── Profile Update ────────────────────────────────────────────────────────
+    // ── profile update (unchanged) ──
 
     @Transactional
     public User updateProfile(Long userId, String fullName, String bio, String email,
@@ -104,16 +109,19 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ← ADDED: simple save for earnings updates from AppointmentService
+
+    @Transactional
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
+    // ── helpers ──
 
     private void checkUnique(String username, String email) {
         if (userRepository.existsByUsername(username))
             throw new IllegalArgumentException("Username already taken.");
         if (userRepository.existsByEmail(email))
             throw new IllegalArgumentException("Email already registered.");
-    }
-    @Transactional
-    public void updateWorkerEarnings(User worker) {
-        userRepository.save(worker);
     }
 }

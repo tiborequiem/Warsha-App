@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Size;
 
 import lombok.Data;
 
+import java.math.BigDecimal;  // ← ADDED: for earnings field
+
 @Data
 @Entity
 @Table(name = "users")
@@ -60,4 +62,8 @@ public class User {
 
     @Size(max = 20)
     private String phone;
+
+    // ← ADDED: cumulative earnings across all completed appointments
+    @Column(precision = 12, scale = 2)
+    private BigDecimal totalEarnings = BigDecimal.ZERO;
 }
