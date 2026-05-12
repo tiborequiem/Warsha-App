@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="${worker.fullName ?: worker.username} + ' – Warsha'">Worker Profile – Warsha</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f0f4f8; font-family: 'IBM Plex Sans', sans-serif; min-height: 100vh; }
+    nav {
+      background: #1a56a4; padding: .9rem 2rem; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: .5rem; color: #fff; font-size: 1.2rem; font-weight: 600; text-decoration: none; }
+    .logo-box { width: 28px; height: 28px; background: rgba(255,255,255,.2); border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+    .logo-box svg { width: 16px; height: 16px; fill: #fff; }
+    nav a { color: rgba(255,255,255,.85); text-decoration: none; font-size: .9rem; margin-left: 1.2rem; }
+    nav a:hover { color: #fff; }
+    .container { max-width: 700px; margin: 2rem auto; padding: 0 1.5rem; }
+    .back-link { display: inline-block; color: #1a56a4; text-decoration: none; font-size: .85rem; margin-bottom: 1.2rem; }
+    .back-link:hover { text-decoration: underline; }
+    .profile-card {
+      background: #fff; border: 1px solid #d0dbe8; border-top: 4px solid #1a56a4;
+      border-radius: 4px; padding: 2rem 2.2rem;
+    }
+    .profile-name { font-size: 1.5rem; font-weight: 600; color: #1a2332; margin-bottom: .25rem; }
+    .profile-trade { font-size: 1rem; color: #1a56a4; font-weight: 500; margin-bottom: 1rem; }
+    .rating { font-size: 1.1rem; color: #f59e0b; font-weight: 600; margin-bottom: 1.2rem; }
+    .divider { border: none; border-top: 1px solid #e8eef4; margin: 1.2rem 0; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem 1.5rem; margin-bottom: 1.4rem; }
+    .meta-item label { display: block; font-size: .75rem; font-weight: 500; color: #5a6a7a; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .2rem; }
+    .meta-item span { font-size: .9rem; color: #1a2332; }
+    .bio-section { margin-bottom: 1.4rem; }
+    .bio-section label { display: block; font-size: .75rem; font-weight: 500; color: #5a6a7a; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .4rem; }
+    .bio-section p { font-size: .9rem; color: #1a2332; line-height: 1.6; }
+    .btn-book {
+      display: inline-block; padding: .7rem 1.6rem;
+      background: #1a56a4; color: #fff; border-radius: 3px; text-decoration: none;
+      font-size: .95rem; font-weight: 600;
+    }
+    .btn-book:hover { background: #154888; }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" th:href="@{/}">
+    <div class="logo-box"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h8l-1 8 11-12h-8z"/></svg></div>
+    Warsha
+  </a>
+  <div>
+    <a th:href="@{/workers}">Workers</a>
+    <a th:href="@{/profile}">My Profile</a>
+    <a th:href="@{/logout}">Sign out</a>
+  </div>
+</nav>
+
+<div class="container">
+  <a class="back-link" th:href="@{/workers}">← Back to workers</a>
+
+  <div class="profile-card">
+    <div class="profile-name" th:text="${worker.fullName ?: worker.username}"></div>
+    <div class="profile-trade" th:text="${worker.trade}"></div>
+    <div class="rating" th:if="${worker.averageRating}">
+      ★ <span th:text="${#numbers.formatDecimal(worker.averageRating, 1, 1)}"></span> / 5.0
+    </div>
+    <div class="rating" th:unless="${worker.averageRating}">No reviews yet</div>
+
+    <hr class="divider"/>
+
+    <div class="meta-grid">
+      <div class="meta-item" th:if="${worker.serviceArea}">
+        <label>Service Area</label>
+        <span th:text="${worker.serviceArea}"></span>
+      </div>
+      <div class="meta-item" th:if="${worker.yearsExperience}">
+        <label>Experience</label>
+        <span th:text="${worker.yearsExperience} + ' years'"></span>
+      </div>
+      <div class="meta-item" th:if="${worker.phone}">
+        <label>Phone</label>
+        <span th:text="${worker.phone}"></span>
+      </div>
+      <div class="meta-item" th:if="${worker.basePrice}">
+        <label>Base Price</label>
+        <span th:text="'$' + ${#numbers.formatDecimal(worker.basePrice, 1, 2)}"></span>
+      </div>
+    </div>
+
+    <div class="bio-section" th:if="${worker.bio}">
+      <label>About</label>
+      <p th:text="${worker.bio}"></p>
+    </div>
+
+    <a class="btn-book" th:href="@{/appointments/book/{id}(id=${worker.id})}">Book Appointment</a>
+  </div>
+</div>
+</body>
+</html>
