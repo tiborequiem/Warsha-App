@@ -54,7 +54,7 @@ public class User {
     @Size(max = 300)
     private String bio;
 
-    // Worker fields
+
     private String trade;
     private String serviceArea;
     private Integer yearsExperience;
@@ -62,7 +62,6 @@ public class User {
     @Size(max = 20)
     private String phone;
 
-    // -- Worker profile fields ------------------------------------------------
 
     /** Base price charged per appointment. Used by PaymentService on completion. */
     @Column(precision = 10, scale = 2)

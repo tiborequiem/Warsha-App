@@ -9,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
+
 @Controller
 @RequestMapping("/profile")
 public class ProfileController {
@@ -38,6 +40,7 @@ public class ProfileController {
                                 @RequestParam(required = false) String serviceArea,
                                 @RequestParam(required = false) Integer yearsExperience,
                                 @RequestParam(required = false) String phone,
+                                @RequestParam(required = false) BigDecimal basePrice,
                                 RedirectAttributes ra) {
 
         User user = userService.findByUsername(principal.getUsername())
@@ -56,7 +59,7 @@ public class ProfileController {
 
         try {
             userService.updateProfile(user.getId(), fullName, bio, email, newPassword,
-                    trade, serviceArea, yearsExperience, phone);
+                    trade, serviceArea, yearsExperience, phone, basePrice);
             ra.addFlashAttribute("success", "Profile updated successfully.");
         } catch (IllegalArgumentException e) {
             ra.addFlashAttribute("error", e.getMessage());

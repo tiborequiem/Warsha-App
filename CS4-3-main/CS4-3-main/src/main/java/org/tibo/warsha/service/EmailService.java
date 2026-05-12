@@ -3,20 +3,24 @@ package org.tibo.warsha.service;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 
-//@Service
+@Service
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final String fromEmail;
 
-    public EmailService(JavaMailSender mailSender) {
+    public EmailService(JavaMailSender mailSender,
+                        @Value("${spring.mail.from:no-reply@warsha.local}") String fromEmail) {
         this.mailSender = mailSender;
+        this.fromEmail = fromEmail;
     }
-
-    // ── Registration confirmed ────────────────────────────────────────────────
 
     public void sendRegistrationConfirmation(String toEmail, String username) {
         SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(fromEmail);
         msg.setTo(toEmail);
         msg.setSubject("Welcome to Warsha, " + username + "!");
         msg.setText(
@@ -28,12 +32,16 @@ public class EmailService {
         mailSender.send(msg);
     }
 
-    // ── Appointment accepted ──────────────────────────────────────────────────
+    @Async("warshaExecutor")
+    public void sendRegistrationConfirmationAsync(String toEmail, String username) {
+        sendRegistrationConfirmation(toEmail, username);
+    }
 
     public void sendAppointmentConfirmed(String toEmail, String customerName,
                                          String workerName, String serviceType,
                                          String appointmentDate) {
         SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(fromEmail);
         msg.setTo(toEmail);
         msg.setSubject("Appointment Confirmed – Warsha");
         msg.setText(
@@ -48,11 +56,10 @@ public class EmailService {
         mailSender.send(msg);
     }
 
-    // ── Appointment rejected / cancelled ─────────────────────────────────────
-
     public void sendAppointmentCancelled(String toEmail, String recipientName,
                                          String serviceType, String appointmentDate) {
         SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(fromEmail);
         msg.setTo(toEmail);
         msg.setSubject("Appointment Cancelled – Warsha");
         msg.setText(

@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +43,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // ── Queries ───────────────────────────────────────────────────────────────
+
 
     @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
@@ -75,12 +76,12 @@ public class UserService {
                 Role.WORKER, trade, serviceArea);
     }
 
-    // ── Profile Update ────────────────────────────────────────────────────────
 
     @Transactional
     public User updateProfile(Long userId, String fullName, String bio, String email,
                               String newPassword, String trade, String serviceArea,
-                              Integer yearsExperience, String phone) {
+                              Integer yearsExperience, String phone, BigDecimal basePrice) {
+        
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found."));
 
@@ -96,10 +97,16 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(newPassword));
         }
         if (user.getRole() == Role.WORKER) {
-            if (trade != null) user.setTrade(trade);
-            if (serviceArea != null) user.setServiceArea(serviceArea);
-            if (yearsExperience != null) user.setYearsExperience(yearsExperience);
-            if (phone != null) user.setPhone(phone);
+            if (trade != null)
+                user.setTrade(trade);
+            if (serviceArea != null)
+                user.setServiceArea(serviceArea);
+            if (yearsExperience != null)
+                user.setYearsExperience(yearsExperience);
+            if (phone != null)
+                user.setPhone(phone);
+            if (basePrice != null)
+                user.setBasePrice(basePrice);
         }
         return userRepository.save(user);
     }

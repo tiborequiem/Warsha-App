@@ -16,8 +16,6 @@ public class AuthController {
         this.userService = userService;
     }
 
-    // ── Root ──────────────────────────────────────────────────────────────────
-    // After login, Spring sends everyone here. We route by role.
 
     @GetMapping("/")
     public String root(@AuthenticationPrincipal UserDetails principal) {
@@ -29,7 +27,6 @@ public class AuthController {
         return isWorker ? "redirect:/worker/dashboard" : "redirect:/layout";
     }
 
-    // ── Login ─────────────────────────────────────────────────────────────────
 
     @GetMapping("/login")
     public String showLogin(@RequestParam(required = false) String error,
@@ -42,7 +39,6 @@ public class AuthController {
         return "login";
     }
 
-    // ── Register (regular user) ───────────────────────────────────────────────
 
     @GetMapping("/register")
     public String showRegister() { return "register"; }
@@ -70,7 +66,6 @@ public class AuthController {
         }
     }
 
-    // ── Register (worker) ─────────────────────────────────────────────────────
 
     @GetMapping("/register/worker")
     public String showWorkerRegister() { return "register-worker"; }
