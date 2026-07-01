@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payment History – Warsha</title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <style>
+        body { background-color: #f8f9fa; }
+        .badge-completed { background-color: #198754; }
+    </style>
+</head>
+<body>
+<div class="container py-5">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <a th:href="@{/appointments}" class="btn btn-outline-secondary btn-sm mb-2">&larr; My Appointments</a>
+            <h1 class="h3 fw-bold mb-0">Payment History</h1>
+            <p class="text-muted small mb-0"
+               th:text="${'Showing all payments for ' + (customer.fullName ?: customer.username)}"></p>
+        </div>
+
+        <!-- Summary badge -->
+        <div class="text-end" th:if="${!payments.isEmpty()}">
+            <div class="text-muted small">Total paid</div>
+            <div class="fs-4 fw-bold text-success"
+                 th:text="${'EGP ' + #aggregates.sum(payments.![amount])}"></div>
+        </div>
+    </div>
+
+    <!-- Flash messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Empty state -->
+    <div th:if="${payments.isEmpty()}" class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
+                 class="text-muted mb-3" viewBox="0 0 16 16">
+                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1H0V4zm0 3h16v5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V7zm3 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1H3zm3 0a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H6z"/>
+            </svg>
+            <h5 class="fw-semibold">No payments yet</h5>
+            <p class="text-muted mb-0">Payment records will appear here once your appointments are completed.</p>
+        </div>
+    </div>
+
+    <!-- Payments table -->
+    <div class="card shadow-sm" th:if="${!payments.isEmpty()}">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Date</th>
+                            <th>Worker</th>
+                            <th>Service</th>
+                            <th>Method</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-center pe-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="payment : ${payments}">
+                            <td class="ps-4 text-muted small"
+                                th:text="${#temporals.format(payment.createdAt, 'dd MMM yyyy, HH:mm')}"></td>
+                            <td>
+                                <span class="fw-semibold"
+                                      th:text="${payment.appointment.worker.fullName ?: payment.appointment.worker.username}"></span>
+                                <div class="text-muted small"
+                                     th:text="${payment.appointment.worker.trade}"></div>
+                            </td>
+                            <td th:text="${payment.appointment.serviceType}"></td>
+                            <td>
+                                <span class="badge bg-secondary"
+                                      th:text="${payment.method}"></span>
+                            </td>
+                            <td class="text-end fw-bold text-success">
+                                <span th:text="${'EGP ' + payment.amount}"></span>
+                            </td>
+                            <td class="text-center pe-4">
+                                <span class="badge badge-completed text-white"
+                                      th:text="${payment.status}"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

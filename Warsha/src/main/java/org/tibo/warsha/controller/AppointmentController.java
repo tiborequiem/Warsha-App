@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;  // ← ADDED: for price parameter
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,7 +28,11 @@ public class AppointmentController {
         this.userService = userService;
     }
 
+<<<<<<< HEAD
     // ── Customer Appointments ─────────────────────────────────────────────────
+=======
+    // ── customer dashboard (unchanged) ──
+>>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
 
     @GetMapping
     public String customerDashboard(@AuthenticationPrincipal UserDetails principal, Model model) {
@@ -39,6 +44,7 @@ public class AppointmentController {
         return "customer-appointments";
     }
 
+<<<<<<< HEAD
     // ── Worker Appointments ───────────────────────────────────────────────────
 
     @GetMapping("/worker")
@@ -49,9 +55,16 @@ public class AppointmentController {
         model.addAttribute("appointments", appointments);
         model.addAttribute("user", worker);
         return "worker/appointments";
+=======
+    // ← UPDATED: redirect old worker dashboard to new dedicated controller
+
+    @GetMapping("/worker")
+    public String workerDashboardRedirect() {
+        return "redirect:/worker/dashboard";  // was: full dashboard logic
+>>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
     }
 
-    // ── Booking Form ──────────────────────────────────────────────────────────
+    // ── booking form (unchanged) ──
 
     @GetMapping("/book/{workerId}")
     public String showBookingForm(@PathVariable Long workerId,
@@ -68,7 +81,7 @@ public class AppointmentController {
         return "book-appointment";
     }
 
-    // ── Submit Booking ──────────────────────────────────────────────────────
+    // ← UPDATED: added price parameter for earnings calculation
 
     @PostMapping("/book/{workerId}")
     public String submitBooking(@PathVariable Long workerId,
@@ -76,6 +89,7 @@ public class AppointmentController {
                                 @RequestParam String serviceType,
                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime appointmentDate,
                                 @RequestParam(required = false) String notes,
+                                @RequestParam(required = false) BigDecimal price,  // ← ADDED
                                 RedirectAttributes ra) {
         User customer = userService.findByUsername(principal.getUsername())
                 .orElseThrow(() -> new IllegalStateException("User not found"));
@@ -90,7 +104,7 @@ public class AppointmentController {
         }
     }
 
-    // ── Cancel Appointment ──────────────────────────────────────────────────
+    // ── cancel appointment (unchanged) ──
 
     @PostMapping("/{id}/cancel")
     public String cancelAppointment(@PathVariable Long id,
@@ -107,6 +121,7 @@ public class AppointmentController {
         return "redirect:/appointments";
     }
 
+<<<<<<< HEAD
     // ── Worker: Confirm Appointment ─────────────────────────────────────────
 
     @PostMapping("/{id}/confirm")
@@ -141,4 +156,8 @@ public class AppointmentController {
 
         return "redirect:/appointments/worker";
     }
+=======
+    // ← REMOVED: confirmAppointment and completeAppointment endpoints
+    // now handled by WorkerDashboardController at /worker/appointments/{id}/...
+>>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
 }

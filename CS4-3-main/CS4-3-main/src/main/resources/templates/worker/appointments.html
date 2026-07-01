@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Work Requests – Warsha</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f0f4f8; font-family: 'IBM Plex Sans', sans-serif; min-height: 100vh; color: #1a2332; }
+    nav {
+      background: #1a56a4; padding: .85rem 1.5rem; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; gap: .5rem; font-size: 1.15rem; font-weight: 600; color: #fff; text-decoration: none; }
+    .nav-logo svg { width: 20px; height: 20px; fill: #fff; }
+    .nav-right { display: flex; align-items: center; gap: 1.2rem; }
+    .nav-links { display: flex; align-items: center; gap: 1.2rem; }
+    .nav-links a { color: rgba(255,255,255,.85); text-decoration: none; font-size: .88rem; font-weight: 500; transition: color .15s; }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a.active { color: #fff; border-bottom: 2px solid rgba(255,255,255,.6); padding-bottom: 2px; }
+    .nav-user { font-size: .85rem; color: rgba(255,255,255,.75); }
+    .nav-user strong { color: #fff; }
+    .worker-badge { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff; font-size: .72rem; font-weight: 600; padding: .15rem .55rem; border-radius: 3px; text-transform: uppercase; letter-spacing: .05em; }
+    .nav-logout { background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff; border-radius: 3px; padding: .3rem .75rem; font-family: inherit; font-size: .82rem; cursor: pointer; }
+    .nav-logout:hover { background: rgba(255,255,255,.12); }
+    .container { max-width: 860px; margin: 2rem auto; padding: 0 1.5rem; }
+    h1 { font-size: 1.4rem; font-weight: 600; color: #1a2332; margin-bottom: 1.2rem; }
+    .alert { border-radius: 3px; padding: .65rem .9rem; font-size: .85rem; margin-bottom: 1.2rem; }
+    .alert-success { background: #f0fdf4; border: 1px solid #86efac; color: #15803d; }
+    .alert-error { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; }
+    .card {
+      background: #fff; border: 1px solid #d0dbe8; border-radius: 4px; margin-bottom: 1rem; padding: 1.2rem 1.4rem;
+    }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .6rem; }
+    .service-type { font-size: 1rem; font-weight: 600; color: #1a2332; }
+    .badge {
+      font-size: .75rem; font-weight: 600; padding: .25rem .6rem; border-radius: 12px;
+    }
+    .badge-PENDING   { background: #fef9c3; color: #854d0e; }
+    .badge-CONFIRMED { background: #dbeafe; color: #1e40af; }
+    .badge-COMPLETED { background: #dcfce7; color: #15803d; }
+    .badge-CANCELLED { background: #f3f4f6; color: #6b7280; }
+    .card-meta { font-size: .83rem; color: #5a6a7a; margin-bottom: .3rem; }
+    .card-notes { font-size: .83rem; color: #5a6a7a; font-style: italic; margin-top: .3rem; }
+    .card-actions { margin-top: .9rem; display: flex; gap: .5rem; flex-wrap: wrap; }
+    .btn { padding: .4rem .9rem; border: none; border-radius: 3px; font-family: inherit; font-size: .83rem; font-weight: 500; cursor: pointer; }
+    .btn-danger  { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; }
+    .btn-primary { background: #1a56a4; color: #fff; }
+    .btn-success { background: #15803d; color: #fff; }
+    .btn-danger:hover  { background: #fee2e2; }
+    .btn-primary:hover { background: #154888; }
+    .btn-success:hover { background: #166534; }
+    .empty { text-align: center; padding: 3rem 1rem; color: #5a6a7a; font-size: .95rem; }
+    @media (max-width: 640px) { .nav-links { display: none; } .nav-right { gap: .6rem; } }
+  </style>
+  <base target="_self">
+</head>
+<body>
+<nav>
+  <a class="nav-logo" th:href="@{/}">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h8l-1 8 11-12h-8z"/></svg>
+    Warsha
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a th:href="@{/worker/dashboard}">Dashboard</a>
+      <a th:href="@{/appointments/worker}" class="active">Requests</a>
+      <a th:href="@{/worker/earnings}">Earnings</a>
+      <a th:href="@{/profile}">Profile</a>
+    </div>
+    <span class="nav-user"><strong th:text="${user.username}">user</strong></span>
+    <span class="worker-badge">Worker</span>
+    <form th:action="@{/logout}" method="post" style="display:inline;">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <button type="submit" class="nav-logout">Logout</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>My Work Requests</h1>
+
+  <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+  <div class="alert alert-error"   th:if="${error}"   th:text="${error}"></div>
+
+  <div th:if="${appointments != null and not #lists.isEmpty(appointments)}">
+    <div class="card" th:each="appt : ${appointments}">
+      <div class="card-header">
+        <div class="service-type" th:text="${appt.serviceType}"></div>
+        <span class="badge" th:classappend="'badge-' + ${appt.status}" th:text="${appt.status}"></span>
+      </div>
+      <div class="card-meta">
+        Customer: <strong th:text="${appt.customer != null and appt.customer.fullName != null} ? ${appt.customer.fullName} : ${appt.customer.username}"></strong>
+      </div>
+      <div class="card-meta">
+        Date: <strong th:text="${#temporals.format(appt.appointmentDate, 'MMM d, yyyy h:mm a')}"></strong>
+      </div>
+      <div class="card-notes" th:if="${appt.notes}" th:text="'Notes: ' + ${appt.notes}"></div>
+
+      <div class="card-actions">
+        <form th:if="${appt.status.name() == 'PENDING'}"
+              th:action="@{/appointments/{id}/confirm(id=${appt.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button class="btn btn-primary" type="submit">Confirm</button>
+        </form>
+        <form th:if="${appt.status.name() == 'CONFIRMED'}"
+              th:action="@{/appointments/{id}/complete(id=${appt.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button class="btn btn-success" type="submit">Mark Complete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty" th:if="${appointments == null or #lists.isEmpty(appointments)}">
+    <p>No work requests yet.</p>
+  </div>
+</div>
+</body>
+</html>

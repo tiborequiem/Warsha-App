@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 
+import java.math.BigDecimal;        // ← ADDED: for price field
 import java.time.LocalDateTime;
 
 
@@ -14,8 +15,9 @@ public class Appointment {
 
     public Appointment() {}
 
+    // ← UPDATED: changed CONFIRMED to ACCEPTED, added REJECTED
     public enum Status {
-        PENDING, CONFIRMED, COMPLETED, CANCELLED
+        PENDING, ACCEPTED, REJECTED, COMPLETED, CANCELLED
     }
 
     @Id
@@ -43,6 +45,10 @@ public class Appointment {
     @Column(length = 500)
     private String notes;
 
+    // ← ADDED: price for earnings calculation
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.PENDING;
@@ -56,6 +62,7 @@ public class Appointment {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+<<<<<<< HEAD
 
 
     public String getServiceType() {
@@ -130,3 +137,6 @@ public class Appointment {
         this.updatedAt = updatedAt;
     }
 }
+=======
+}
+>>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
