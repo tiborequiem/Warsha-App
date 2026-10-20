@@ -79,7 +79,7 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
     }
 
-    // Only the assigned worker can move a PENDING appointment to CONFIRMED
+    // Moves a PENDING appointment to CONFIRMED
     @Transactional
     public void confirmAppointment(Long appointmentId, Long workerId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
@@ -97,7 +97,13 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
     }
 
-    // Marks a CONFIRMED appointment as COMPLETED and triggers automatic payment creation
+    // Worker accept aliases confirmAppointment
+    @Transactional
+    public void acceptAppointment(Long appointmentId, Long workerId) {
+        confirmAppointment(appointmentId, workerId);
+    }
+
+    // Marks a CONFIRMED or ACCEPTED appointment as COMPLETED and triggers automatic payment creation
     @Transactional
     public void completeAppointment(Long appointmentId, Long workerId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
@@ -107,7 +113,8 @@ public class AppointmentService {
             throw new IllegalArgumentException("Only the assigned worker can complete this appointment.");
         }
 
-        if (appointment.getStatus() != Appointment.Status.CONFIRMED) {
+        if (appointment.getStatus() != Appointment.Status.CONFIRMED &&
+                appointment.getStatus() != Appointment.Status.ACCEPTED) {
             throw new IllegalArgumentException("Only confirmed appointments can be marked as completed.");
         }
 
@@ -118,10 +125,22 @@ public class AppointmentService {
         paymentService.processAutomaticPayment(saved);
     }
 
-    // Worker rejection re-uses the cancel logic
+    // Worker rejection marks appointment as REJECTED
     @Transactional
     public void rejectAppointment(Long appointmentId, Long workerId) {
-        cancelAppointment(appointmentId, workerId);
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Appointment not found."));
+
+        if (!appointment.getWorker().getId().equals(workerId)) {
+            throw new IllegalArgumentException("Only the assigned worker can reject this appointment.");
+        }
+
+        if (appointment.getStatus() != Appointment.Status.PENDING) {
+            throw new IllegalArgumentException("Only pending appointments can be rejected.");
+        }
+
+        appointment.setStatus(Appointment.Status.REJECTED);
+        appointmentRepository.save(appointment);
     }
 
     // Returns all appointments for a customer, sorted newest first

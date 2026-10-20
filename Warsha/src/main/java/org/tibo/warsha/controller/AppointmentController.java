@@ -28,11 +28,7 @@ public class AppointmentController {
         this.userService = userService;
     }
 
-<<<<<<< HEAD
-    // ── Customer Appointments ─────────────────────────────────────────────────
-=======
-    // ── customer dashboard (unchanged) ──
->>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
+    // ── Customer Appointments ──
 
     @GetMapping
     public String customerDashboard(@AuthenticationPrincipal UserDetails principal, Model model) {
@@ -44,8 +40,7 @@ public class AppointmentController {
         return "customer-appointments";
     }
 
-<<<<<<< HEAD
-    // ── Worker Appointments ───────────────────────────────────────────────────
+    // ── Worker Appointments ──
 
     @GetMapping("/worker")
     public String workerDashboard(@AuthenticationPrincipal UserDetails principal, Model model) {
@@ -55,13 +50,6 @@ public class AppointmentController {
         model.addAttribute("appointments", appointments);
         model.addAttribute("user", worker);
         return "worker/appointments";
-=======
-    // ← UPDATED: redirect old worker dashboard to new dedicated controller
-
-    @GetMapping("/worker")
-    public String workerDashboardRedirect() {
-        return "redirect:/worker/dashboard";  // was: full dashboard logic
->>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
     }
 
     // ── booking form (unchanged) ──
@@ -121,7 +109,6 @@ public class AppointmentController {
         return "redirect:/appointments";
     }
 
-<<<<<<< HEAD
     // ── Worker: Confirm Appointment ─────────────────────────────────────────
 
     @PostMapping("/{id}/confirm")
@@ -156,8 +143,4 @@ public class AppointmentController {
 
         return "redirect:/appointments/worker";
     }
-=======
-    // ← REMOVED: confirmAppointment and completeAppointment endpoints
-    // now handled by WorkerDashboardController at /worker/appointments/{id}/...
->>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
 }

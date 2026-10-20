@@ -73,7 +73,12 @@ From the `Warsha/` directory:
 
 ```bash
 cd Warsha
-mvn spring-boot:run
+
+# Standard run (requires MySQL running with credentials in application.properties)
+./mvnw spring-boot:run
+
+# Zero-config Dev run (uses built-in H2 in-memory DB, no MySQL required):
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 Open [http://localhost:9000](http://localhost:9000).

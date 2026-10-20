@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
         ex.printStackTrace(); // prints to console so you can see the REAL error
         return ResponseEntity.status(500).body(Map.of(
                 "error", ex.getClass().getSimpleName(),
-                "message", ex.getMessage()
+                "message", ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred"
         ));
     }
 }

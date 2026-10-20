@@ -25,25 +25,27 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     long countByWorkerAndStatus(User worker, Appointment.Status status);
 
-    // ← ADDED: today's appointments for dashboard (database-level filter)
-    @Query("SELECT a FROM Appointment a WHERE a.worker = :worker " +
-            "AND a.status = :status " +
-            "AND DATE(a.appointmentDate) = CURRENT_DATE " +
-            "ORDER BY a.appointmentDate ASC")
-    List<Appointment> findTodayAppointmentsByWorkerAndStatus(
-            @Param("worker") User worker,
-            @Param("status") Appointment.Status status);
+    // Today's appointments for dashboard
+    List<Appointment> findByWorkerAndStatusAndAppointmentDateBetweenOrderByAppointmentDateAsc(
+            User worker, Appointment.Status status, LocalDateTime start, LocalDateTime end);
 
-    // ← ADDED: completed appointments for earnings history (newest first)
+    default List<Appointment> findTodayAppointmentsByWorkerAndStatus(User worker, Appointment.Status status) {
+        LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+        return findByWorkerAndStatusAndAppointmentDateBetweenOrderByAppointmentDateAsc(
+                worker, status, startOfDay, endOfDay);
+    }
+
+    // Completed appointments for earnings history (newest first)
     List<Appointment> findByWorkerAndStatusOrderByAppointmentDateDesc(
             User worker, Appointment.Status status);
 
-    // ← ADDED: core availability check — prevents double-booking
-    @Query("SELECT COUNT(a) > 0 FROM Appointment a " +
-            "WHERE a.worker.id = :workerId " +
-            "AND a.status = 'ACCEPTED' " +
-            "AND a.appointmentDate = :dateTime")
-    boolean existsAcceptedAppointmentAtDateTime(
-            @Param("workerId") Long workerId,
-            @Param("dateTime") LocalDateTime dateTime);
+    // Core availability check — prevents double-booking
+    boolean existsByWorkerIdAndAppointmentDateAndStatusIn(
+            Long workerId, LocalDateTime appointmentDate, List<Appointment.Status> statuses);
+
+    default boolean existsAcceptedAppointmentAtDateTime(Long workerId, LocalDateTime dateTime) {
+        return existsByWorkerIdAndAppointmentDateAndStatusIn(workerId, dateTime,
+                List.of(Appointment.Status.ACCEPTED, Appointment.Status.CONFIRMED));
+    }
 }

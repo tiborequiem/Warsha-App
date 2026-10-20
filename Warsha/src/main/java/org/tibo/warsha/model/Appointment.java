@@ -15,9 +15,8 @@ public class Appointment {
 
     public Appointment() {}
 
-    // ← UPDATED: changed CONFIRMED to ACCEPTED, added REJECTED
     public enum Status {
-        PENDING, ACCEPTED, REJECTED, COMPLETED, CANCELLED
+        PENDING, CONFIRMED, ACCEPTED, REJECTED, COMPLETED, CANCELLED
     }
 
     @Id
@@ -62,7 +61,6 @@ public class Appointment {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-<<<<<<< HEAD
 
 
     public String getServiceType() {
@@ -136,7 +134,12 @@ public class Appointment {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 }
-=======
-}
->>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634

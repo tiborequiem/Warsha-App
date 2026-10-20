@@ -47,11 +47,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-<<<<<<< HEAD
-
-=======
-    // ── queries (unchanged) ──
->>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
+    // ── queries ──
 
     @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
@@ -84,10 +80,7 @@ public class UserService {
                 Role.WORKER, trade, serviceArea);
     }
 
-<<<<<<< HEAD
-=======
-    // ── profile update (unchanged) ──
->>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
+    // ── profile update ──
 
     @Transactional
     public User updateProfile(Long userId, String fullName, String bio, String email,

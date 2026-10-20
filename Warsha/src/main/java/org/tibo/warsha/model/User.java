@@ -7,14 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
-<<<<<<< HEAD
-=======
-import lombok.Data;
-
-import java.math.BigDecimal;  // ← ADDED: for earnings field
-
-@Data
->>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
 @Entity
 @Table(name = "users")
 public class User {
@@ -69,8 +61,6 @@ public class User {
 
     @Size(max = 20)
     private String phone;
-
-<<<<<<< HEAD
 
     /** Base price charged per appointment. Used by PaymentService on completion. */
     @Column(precision = 10, scale = 2)
@@ -197,15 +187,3 @@ public class User {
         this.totalEarnings = totalEarnings;
     }
 }
-
-
-
-
-
-
-=======
-    // ← ADDED: cumulative earnings across all completed appointments
-    @Column(precision = 12, scale = 2)
-    private BigDecimal totalEarnings = BigDecimal.ZERO;
-}
->>>>>>> f36b9b0d0ac63db333d4f5e45471654a5b7ed634
